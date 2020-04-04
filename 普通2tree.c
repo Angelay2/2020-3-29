@@ -221,18 +221,27 @@ int isSubtree(struct TreeNode* s, struct TreeNode* t){
 	
 }
 
-//9. 平衡二叉树(每个结点的左右子树高度差不超过1)
-// 获取高度
+//9. 平衡二叉树(每个结点的左右子树高度差不超过1) 强调每个节点
+// 获取高度  如果有一个结点左右子树高度差大于1 则整棵树不平衡 (不是只看根结点)
+// 若一个结点的两子树平衡 则递归返回到该结点true
 int getH(struct TreeNode* root){
 	if (root == NULL)
+		return 0;
 	// 求左边子树的高度和右边子树的高度
 	// 哪个高度大 给其高度加 1 = 树的高度
-	int 
+	int l = getH(root->left);
+	int r = getH(root->right);
+
+	return l > r ? l + 1 : r + 1;
 }
 int  isBalance(struct TreeNode* root){
-
+	// 如果是空树 肯定高度平衡
+	if (root == NULL)
+		return 1;
+	int l = getH(root->left);
+	int r = getH(root->right);
+	// 两数高度值差小于2 && 左边所有子树平衡 && 右边所有子树平衡 
+	return abs(l - r) < 2 && isBalance(root->left) && isBalance(root->right);
 }
 
-//10. 二叉树的创建
-// 根据输入的先序遍历字符串 创建一个二叉树, 在对二叉树进行中序遍历, 输出中序遍历的结果,
 
