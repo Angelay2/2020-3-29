@@ -1,7 +1,7 @@
 #pragma once
 #include <stdio.h>
 #include <stdlib.h>
-
+#pragma warning(disable:4996)
 /*
 	节点个数 - 1 = 边 = n - 1
 	完全二叉树包含满二叉树
@@ -44,26 +44,73 @@ n1: 1----> 节点个数为偶数
 
 */
 
-
 // 链接关系（有两为二叉， 有三为三叉）
 // 二叉链 （data left right）
-struct Node{
-	Node* left;
-	Node* right;
-	Datatype data;
-};
-// 三叉链 （data left right parent）
-struct Node{
-	Node* left;
-	Node* right;
-	Node* parent;
-	Datatype data;
-};
+//struct Node{
+//	Node* left;
+//	Node* right;
+//	Datatype data;
+//};
+//// 三叉链 （data left right parent）
+//struct Node{
+//	Node* left;
+//	Node* right;
+//	Node* parent;
+//	Datatype data;
+//};
 
+//  二叉树的创建
+// 根据输入的先序遍历字符串 创建一个二叉树, 再对二叉树进行中序遍历, 输出中序遍历的结果,
+// 输入 输出 
+// 前序 abc##de#g##f### 首先pi 指向a字符
+// 参数有 数组array和位置的指针pi(保证全局拿到的为同一个i 要么传全局变量 要么传指针)
+// 最终返回根结点
+typedef struct TreeNode {
+	char _data;
+	struct TreeNode* _left;
+	struct TreeNode* _right;
+}Node;
 
-void heapShiftUp(Type* arr, int child){
-	if (child > arr[parent])
+Node* createTree(char* array, int* pi){
+	// 这个位置的字符不等于'#' 就去建立结点
+	if (array[*pi] != '#'){
+		// 先创建根结点 先申请空间 再传数据
+		Node* root = (Node*)malloc(sizeof(Node));
+		root->_data = array[*pi]; // 让根的数据等于字符
+
+		//把位置向后移动一个位置 建立下一个结点
+		// 建立左子树 左边应等于createTree()这个函数返回的结点
+		// 创建完根左边一系列的左结点(bc,直到c->left = '#'时, return NULL)后, 再进入下一个递归
+		// 进而创建右节点 c的左右结点都为'#', 证明创建完毕, 返回c结点 证明b的左子树创建完毕 到右子树
+		++(*pi);
+		root->_left = createTree(array, pi);
+
+		// 向后移动一个位置, 建立右子树
+		++(*pi);
+		root->_right = createTree(array, pi);
+
+		// 建好之后返回根
+		return root;
+	}
+	// 如果给的就是一个'#' 直接返回NULL
+	else
+		return NULL;
 }
+void inOrder(Node* root){
+	if (root){
+		inOrder(root->_left);// 左子树
+		printf("%c ", root->_data);// 根
+		inOrder(root->_right);// 右子树
+	}
+}
+int main(){
+	char array[101];
+	int idx = 0;
+	scanf("%s", array);
+	Node* root = createTree(array, &idx);
+	inOrder(root);
+	printf("\n");
 
-/*
-
+	system("pause");
+	return 0;
+}
