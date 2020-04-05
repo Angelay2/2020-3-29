@@ -1,6 +1,6 @@
-#pragma once
 #include <stdio.h>
 #include <stdlib.h>
+#include "2tree.h"
 #pragma warning(disable:4996)
 /*
 	节点个数 - 1 = 边 = n - 1
@@ -65,11 +65,7 @@ n1: 1----> 节点个数为偶数
 // 前序 abc##de#g##f### 首先pi 指向a字符
 // 参数有 数组array和位置的指针pi(保证全局拿到的为同一个i 要么传全局变量 要么传指针)
 // 最终返回根结点
-typedef struct TreeNode {
-	char _data;
-	struct TreeNode* _left;
-	struct TreeNode* _right;
-}Node;
+
 
 Node* createTree(char* array, int* pi){
 	// 这个位置的字符不等于'#' 就去建立结点
@@ -103,6 +99,38 @@ void inOrder(Node* root){
 		inOrder(root->_right);// 右子树
 	}
 }
+// 要改变指针的地址 就要传二级指针
+void destoryTree(Node** root){
+	if (*root){
+		// 释放结点
+		Node* cur = *root;
+		// 递归销毁左右子树
+		destoryTree(&cur->_left);
+		destoryTree(&cur->_right);
+		free(cur);
+		// 把根置空 防止指针变为野指针
+		*root = NULL;
+	}
+}
+// 
+void destoryTree2(Node* root){
+	if (root){
+		// 释放结点
+		Node* cur = root;
+		// 递归销毁左右子树
+		destoryTree(&cur->_left);
+		destoryTree(&cur->_right);
+		free(cur);
+		// 把根置空 防止指针变为野指针
+		root = NULL;
+	}
+}
+int getLeafSize(Node* root);
+
+int* getSize(Node* root);
+
+Node* find(Node* root, Datatype data);
+
 int main(){
 	char array[101];
 	int idx = 0;
@@ -110,6 +138,8 @@ int main(){
 	Node* root = createTree(array, &idx);
 	inOrder(root);
 	printf("\n");
+
+	destoryTree(root);
 
 	system("pause");
 	return 0;
