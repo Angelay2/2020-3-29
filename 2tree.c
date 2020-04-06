@@ -67,7 +67,7 @@ n1: 1----> 节点个数为偶数
 // 最终返回根结点
 
 
-Node* createTree(char* array, int* pi){
+Node* createTree(Datatype* array, int* pi){
 	// 这个位置的字符不等于'#' 就去建立结点
 	if (array[*pi] != '#'){
 		// 先创建根结点 先申请空间 再传数据
@@ -102,7 +102,7 @@ void inOrder(Node* root){
 // 要改变指针的地址 就要传二级指针
 void destoryTree(Node** root){
 	if (*root){
-		// 释放结点
+		// 释放结点 先要做解引用 才能拿到指针的值
 		Node* cur = *root;
 		// 递归销毁左右子树
 		destoryTree(&cur->_left);
@@ -112,34 +112,107 @@ void destoryTree(Node** root){
 		*root = NULL;
 	}
 }
-// 
+// 传一级指针不行 最终left和right data 都为随机值,且root不为空, 依旧指向之前的空间, 指向没变前z+'/,NU7HY6GF之后会造成非法访问 因为空间已经还给系统了.
+// 并没有改指针的值 应该把root的值变为NULL, 正确的是把空间释放了,也要把指针置NULL,
 void destoryTree2(Node* root){
 	if (root){
 		// 释放结点
 		Node* cur = root;
 		// 递归销毁左右子树
-		destoryTree(&cur->_left);
-		destoryTree(&cur->_right);
+		destoryTree2(cur->_left);
+		destoryTree2(cur->_right);
 		free(cur);
 		// 把根置空 防止指针变为野指针
 		root = NULL;
+	}1;
+}
+// 求叶子结点个数
+// 1. 不需要遍历, 等于左右子树 叶子和(类似前序的遍历)
+int getLeafSize(Node* root){
+	// 空树叶子为0
+	if (root == NULL)
+		return 0;
+	// 只有一个结点的话 也为叶子
+	if (root->_left == NULL && root->_right == NULL)
+		return 1;
+	// 不是只有一个根结点的话 则叶子个数等于左右子树的叶子结点和
+	return getLeafSize(root->_left) + getLeafSize(root->_right);
+}
+
+// 2. 遍历二叉树, 统计叶子结点
+void getLeafSize2(Node* root, int* num){
+	if (root){
+		// 每走到一个叶子 个数+1,
+		if (root->_left == NULL && root->_left == NULL){
+			++(*num);
+			return;
+		}
+		// 如果不是叶子 继续向下走, 从左树遍历到右树
+		getLeafSize2(root->_left, num);
+		getLeafSize2(root->_right, num);
 	}
 }
-int getLeafSize(Node* root);
+// 求第K层的结点个数
+//  求左右子树第 k-1 层的结点个数和
+int getKSize(Node* root, int k){
+	if (root == NULL)
+		return 0;
+	// 第一层只有一个结点
+	if (k == 1)
+		return 1;
+	return getKSize(root->_left, k - 1) + getKSize(root->_right, k - 1);
+}
+// 查找结点是否在二叉树中. 如果是, 返回结点指针 查不到 返回空,
+// 遍历
+Node* find(Node* root, Datatype data){
+	Node* ret;
+	// 任意一种遍历 每次和当前结点进行比较 
+	if (root == NULL)
+		return NULL;
+	if (root->_data == data)
+		return root;
+	// 如果找到就直接返回, 不用再继续查找下去
+	// 用ret 来保存找得到的地址,
+	ret = find(root->_left, data);
+	if (ret != NULL)
+		return ret;
+	ret = find(root->_right, data);
+	if (ret != NULL)
+		return ret;
+	return NULL;
+}
 
-int* getSize(Node* root);
-
-Node* find(Node* root, Datatype data);
-
-int main(){
-	char array[101];
+int main1(){
+	char array[101] = "abc##de#g##f###";
 	int idx = 0;
-	scanf("%s", array);
+	int num = 0;
 	Node* root = createTree(array, &idx);
 	inOrder(root);
 	printf("\n");
 
-	destoryTree(root);
+	
+	printf("%d\n", getLeafSize(root));// 有3个叶子结点
+	getLeafSize2(root, &num);
+	printf("%d\n", num);// 有3个叶子结点
+
+	destoryTree(&root);
+	//destoryTree2(root);
+
+	system("pause");
+	return 0;
+}
+int main(){
+	char str[] = {"abc##de#g##f###"};
+	int i = 0;
+	Node* ret;
+	Node* root = createTree(str, &i);
+
+	printf("%d\n", getKSize(root, 3));
+	printf("%d\n", getKSize(root, 1));
+
+	ret = find(root, 'g');
+	ret = find(root, 'd');
+	ret = find(root, 'b');
 
 	system("pause");
 	return 0;
